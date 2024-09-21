@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import supabase from "../supabase";
+import { Send } from "react-feather";
 
 function SendMessage() {
   const [message, setMessage] = useState("");
@@ -18,14 +19,17 @@ function SendMessage() {
   };
 
   return (
-    <form onSubmit={handleSubmit}>
+    <form className="anonymousReportingForm" onSubmit={handleSubmit}>
       <input
+        className="anonymousReportingInput"
         type="text"
         value={message}
         onChange={(e) => setMessage(e.target.value)}
         placeholder="Enter your message"
       />
-      <button type="submit">Send</button>
+      <button className="anonymousReportingButton" type="submit">
+        <Send />
+      </button>
     </form>
   );
 }
