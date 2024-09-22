@@ -1,36 +1,102 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import supabase from "../supabase";
 import { Send } from "react-feather";
 
 function SendMessage() {
   const [message, setMessage] = useState("");
+  const [image, setImage] = useState(null);
+  const [imageUrl, setImageUrl] = useState(null);
+
+  useEffect(() => {
+    navigator.mediaDevices
+      .getUserMedia({ video: true })
+      .then((stream) => {
+        const video = document.getElementById("video");
+        video.srcObject = stream;
+      })
+      .catch((err) => {
+        console.error("Error accessing camera:", err);
+      });
+  }, []);
+
+  const handleCapture = () => {
+    const video = document.getElementById("video");
+    const canvas = document.createElement("canvas");
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+    const context = canvas.getContext("2d");
+    context.drawImage(video, 0, 0, canvas.width, canvas.height);
+    canvas.toBlob((blob) => {
+      setImage(blob);
+    }, "image/jpeg");
+  };
+
+  const uploadImageToSupabase = async (imageBlob) => {
+    const { data, error } = await supabase.storage
+      .from("ReportedImages")
+      .upload(`public/${Date.now()}.jpg`, imageBlob, {
+        cacheControl: "3600",
+        upsert: true,
+      });
+
+    if (error) {
+      throw new Error("Error uploading image to Supabase");
+    }
+
+    const { publicURL } = supabase.storage
+      .from("ReportedImages")
+      .getPublicUrl(data.path);
+    return publicURL;
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    let uploadedImageUrl = imageUrl;
+
+    if (image && !imageUrl) {
+      try {
+        uploadedImageUrl = await uploadImageToSupabase(image);
+        setImageUrl(uploadedImageUrl);
+      } catch (error) {
+        console.error("Error uploading image:", error);
+      }
+    }
+
     const { data, error } = await supabase
       .from("ReportedMessages")
-      .insert([{ message }]);
+      .insert([{ message, fileURL: uploadedImageUrl }]);
+
     if (error) {
       console.error("Error inserting message:", error);
     } else {
       console.log("Message inserted:", data);
       setMessage("");
+      setImage(null);
+      setImageUrl(null);
     }
   };
 
   return (
-    <form className="anonymousReportingForm" onSubmit={handleSubmit}>
-      <input
-        className="anonymousReportingInput"
-        type="text"
-        value={message}
-        onChange={(e) => setMessage(e.target.value)}
-        placeholder="Enter your message"
-      />
-      <button className="anonymousReportingButton" type="submit">
-        <Send />
-      </button>
-    </form>
+    <div>
+      <form className="anonymousReportingForm" onSubmit={handleSubmit}>
+        <div className="cameraFeed">
+          <video id="video" width="320" height="240" autoPlay></video>
+          <button type="button" onClick={handleCapture}>
+            Capture Photo
+          </button>
+        </div>
+        <input
+          className="anonymousReportingInput"
+          type="text"
+          value={message}
+          onChange={(e) => setMessage(e.target.value)}
+          placeholder="Enter your message"
+        />
+        <button className="anonymousReportingButton" type="submit">
+          <Send />
+        </button>
+      </form>
+    </div>
   );
 }
 
