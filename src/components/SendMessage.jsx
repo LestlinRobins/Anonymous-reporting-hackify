@@ -32,23 +32,41 @@ function SendMessage() {
   };
 
   const uploadImageToSupabase = async (imageBlob) => {
+    if (!imageBlob) {
+      console.error("Error: No image data to upload!");
+      return;
+    }
+
+    const fileName = `${Date.now()}.jpg`;
+
+    console.log("Uploading image:", fileName);
+
     const { data, error } = await supabase.storage
       .from("ReportedImages")
-      .upload(`public/${Date.now()}.jpg`, imageBlob, {
-        cacheControl: "3600",
-        upsert: true,
+      .upload(fileName, imageBlob, {
+        contentType: "image/jpeg",
       });
 
     if (error) {
-      throw new Error("Error uploading image to Supabase");
+      console.error("Supabase Upload Error:", error);
+      return null;
     }
 
-    const { publicURL } = supabase.storage
-      .from("ReportedImages")
-      .getPublicUrl(data.path);
-    return publicURL;
-  };
+    console.log("Upload successful:", data);
 
+    // Construct the correct public URL
+    const { data: urlData } = supabase.storage
+      .from("ReportedImages")
+      .getPublicUrl(fileName); // Use fileName instead of data.path
+
+    if (!urlData || !urlData.publicUrl) {
+      console.error("Error getting public URL:", urlData);
+      return null;
+    }
+
+    console.log("Uploaded file URL:", urlData.publicUrl);
+    return urlData.publicUrl;
+  };
   const handleSubmit = async (e) => {
     e.preventDefault();
     let uploadedImageUrl = imageUrl;
