@@ -96,13 +96,13 @@ function SendMessage() {
 
   return (
     <div>
-      <form className="anonymousReportingForm" onSubmit={handleSubmit}>
-        <div className="cameraFeed">
-          <video id="video" width="320" height="240" autoPlay></video>
-          <button type="button" onClick={handleCapture}>
-            Capture Photo
-          </button>
-        </div>
+      <div className="cameraFeed">
+        <video id="video" width="240" height="320" autoPlay></video>
+        <button type="button" onClick={handleCapture}>
+          Capture Photo
+        </button>
+      </div>
+      <div className="anonymousReportingForm">
         <input
           className="anonymousReportingInput"
           type="text"
@@ -110,10 +110,10 @@ function SendMessage() {
           onChange={(e) => setMessage(e.target.value)}
           placeholder="Enter your message"
         />
-        <button className="anonymousReportingButton" type="submit">
+        <button className="anonymousReportingButton" onClick={handleSubmit}>
           <Send />
         </button>
-      </form>
+      </div>
     </div>
   );
 }

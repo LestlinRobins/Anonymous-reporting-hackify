@@ -47,3 +47,13 @@
   align-items: center;
   justify-content: center;
 }
+
+.cameraFeed {
+  display: flex;
+  flex-direction: column;
+  width: 80vw;
+}
+
+.cameraFeed video {
+  border-radius: 20px;
+}
