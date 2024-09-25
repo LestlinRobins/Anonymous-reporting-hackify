@@ -31,6 +31,17 @@ function SendMessage() {
     }, "image/jpeg");
   };
 
+  useEffect(() => {
+    navigator.mediaDevices
+      .getUserMedia({ video: { facingMode: { exact: "environment" } } })
+      .then((stream) => {
+        const video = document.getElementById("video");
+        video.srcObject = stream;
+      })
+      .catch((err) => {
+        console.error("Error accessing camera:", err);
+      });
+  }, []);
   const uploadImageToSupabase = async (imageBlob) => {
     if (!imageBlob) {
       console.error("Error: No image data to upload!");
