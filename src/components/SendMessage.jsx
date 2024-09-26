@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import supabase from "../supabase";
-import { Send } from "react-feather";
+import { Send, Camera } from "react-feather";
 
 function SendMessage() {
   const [message, setMessage] = useState("");
@@ -9,7 +9,7 @@ function SendMessage() {
 
   useEffect(() => {
     navigator.mediaDevices
-      .getUserMedia({ video: { facingMode: { exact: "environment" } } })
+      .getUserMedia({ video: true })
       .then((stream) => {
         const video = document.getElementById("video");
         video.srcObject = stream;
@@ -18,6 +18,17 @@ function SendMessage() {
         console.error("Error accessing camera:", err);
       });
   }, []);
+  //   useEffect(() => {
+  //     navigator.mediaDevices
+  //       .getUserMedia({ video: { facingMode: { exact: "environment" } } })
+  //       .then((stream) => {
+  //         const video = document.getElementById("video");
+  //         video.srcObject = stream;
+  //       })
+  //       .catch((err) => {
+  //         console.error("Error accessing camera:", err);
+  //       });
+  //   }, []);
 
   const handleCapture = () => {
     const video = document.getElementById("video");
@@ -95,11 +106,15 @@ function SendMessage() {
   };
 
   return (
-    <div>
+    <div className="anonymousReportingContainer">
       <div className="cameraFeed">
         <video id="video" width="240" height="320" autoPlay></video>
-        <button type="button" onClick={handleCapture}>
-          Capture Photo
+        <button
+          className="anonymousReportingCameraButton"
+          type="button"
+          onClick={handleCapture}
+        >
+          <Camera />
         </button>
       </div>
       <div className="anonymousReportingForm">
