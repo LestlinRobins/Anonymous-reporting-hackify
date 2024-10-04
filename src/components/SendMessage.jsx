@@ -6,6 +6,7 @@ function SendMessage() {
   const [message, setMessage] = useState("");
   const [image, setImage] = useState(null);
   const [imageUrl, setImageUrl] = useState(null);
+  const [success, setSuccess] = useState(false);
 
   useEffect(() => {
     navigator.mediaDevices
@@ -102,11 +103,18 @@ function SendMessage() {
       setMessage("");
       setImage(null);
       setImageUrl(null);
+      setSuccess(true);
     }
   };
 
   return (
     <div className="anonymousReportingContainer">
+      {success && (
+        <div className="anonymousReportingSuccess">
+          Your report has been sent safely! Rest easy—it’s securely and
+          anonymously in the right hands. We've got you!
+        </div>
+      )}
       <div className="cameraFeed">
         <video id="video" width="240" height="320" autoPlay></video>
         <button
@@ -123,7 +131,7 @@ function SendMessage() {
           type="text"
           value={message}
           onChange={(e) => setMessage(e.target.value)}
-          placeholder="Enter your message"
+          placeholder="Enter a description"
         />
         <button className="anonymousReportingButton" onClick={handleSubmit}>
           <Send />
